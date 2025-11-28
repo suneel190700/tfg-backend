@@ -1,13 +1,23 @@
 const { Pool } = require('pg');
 require('dotenv').config();
-const isProduction = process.env.NODE_ENV === 'production';
 
-const connectionString = process.env.DATABASE_URL; // Uses the full string from Neon
+// 1. Define the base configuration
+// This reads the connection string from your .env file
+const poolConfig = {
+    connectionString: process.env.DATABASE_URL,
+};
 
-const pool = new Pool({
-    connectionString: connectionString,
-    ssl: isProduction ? { rejectUnauthorized: false } : false // Neon requires SSL
-});
+// 2. Add SSL setting ONLY if connecting to Neon (checked via DB_SSL env var or DATABASE_URL presence)
+// Neon requires SSL connections. 'rejectUnauthorized: false' allows connection without local certs.
+// We check if DATABASE_URL exists and contains 'neon.tech' to auto-enable SSL for Neon.
+if (process.env.DATABASE_URL && process.env.DATABASE_URL.includes('neon.tech')) {
+    poolConfig.ssl = {
+        rejectUnauthorized: false 
+    };
+}
+
+// 3. Create the pool using the config
+const pool = new Pool(poolConfig);
 
 // Test connection on startup
 pool.connect((err, client, release) => {
