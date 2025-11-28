@@ -13,7 +13,7 @@ router.post('/:id/leave', auth, groupController.leaveGroup);
 router.delete('/:id', auth, groupController.deleteGroup); // Standard Owner Delete
 
 // 🛡️ ADMIN ROUTE: Force Delete
-// Only users with 'admin' role can hit this endpoint
+// Ensure this points to deleteGroupForce
 router.delete('/admin/:id', auth, checkRole(['admin']), groupController.deleteGroupForce);
 
 module.exports = router;

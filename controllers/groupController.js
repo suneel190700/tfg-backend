@@ -143,15 +143,14 @@ exports.deleteGroup = async (req, res) => {
         const { id } = req.params;
         const userId = req.user.id;
 
-        // Check ownership
         const group = await db.query('SELECT * FROM project_groups WHERE group_id = $1', [id]);
         if (group.rows.length === 0) return res.status(404).json({ message: "Group not found" });
 
+        // This check prevents non-creators from deleting
         if (group.rows[0].created_by !== userId) {
             return res.status(403).json({ message: "Not authorized to delete this group" });
         }
 
-        // Cascade delete handles members, so just delete the group
         await db.query('DELETE FROM project_groups WHERE group_id = $1', [id]);
         res.json({ message: "Group deleted" });
 
@@ -161,11 +160,14 @@ exports.deleteGroup = async (req, res) => {
     }
 };
 
+// @desc    Force delete a group (Admin only)
+// @route   DELETE /api/groups/admin/:id
+// @access  Private (Admin)
 exports.deleteGroupForce = async (req, res) => {
     try {
         const { id } = req.params;
         
-        // No ownership check needed here because the route is protected by checkRole(['admin'])
+        // NO ownership check here. The route is protected by checkRole(['admin'])
         const result = await db.query('DELETE FROM project_groups WHERE group_id = $1 RETURNING *', [id]);
 
         if (result.rowCount === 0) {
