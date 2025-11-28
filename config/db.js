@@ -1,15 +1,15 @@
 const { Pool } = require('pg');
 require('dotenv').config();
+const isProduction = process.env.NODE_ENV === 'production';
+
+const connectionString = process.env.DATABASE_URL; // Uses the full string from Neon
 
 const pool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT,
+    connectionString: connectionString,
+    ssl: isProduction ? { rejectUnauthorized: false } : false // Neon requires SSL
 });
 
-// Test the connection on startup
+// Test connection on startup
 pool.connect((err, client, release) => {
     if (err) {
         return console.error('Error acquiring client', err.stack);
