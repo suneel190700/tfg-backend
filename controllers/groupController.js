@@ -160,3 +160,22 @@ exports.deleteGroup = async (req, res) => {
         res.status(500).json({ message: "Server Error" });
     }
 };
+
+exports.deleteGroupForce = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        // No ownership check needed here because the route is protected by checkRole(['admin'])
+        const result = await db.query('DELETE FROM project_groups WHERE group_id = $1 RETURNING *', [id]);
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ message: "Group not found" });
+        }
+
+        res.json({ message: "Group successfully deleted by Admin" });
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ message: "Server Error" });
+    }
+};
