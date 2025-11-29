@@ -15,6 +15,9 @@ app.use('/api/users', require('./routes/userRoutes')); // Protected Routes (Prof
 app.use('/api/groups', require('./routes/groupRoutes')); // <--- ADD THIS LINE
 app.use('/api/chat', require('./routes/chatRoutes'));
 app.use('/api/matches', require('./routes/matchRoutes')); // <--- ADD THIS LINE
+app.use('/api/matches', require('./routes/matchRoutes'));
+app.use('/api/tasks', require('./routes/taskRoutes')); // <--- ADD THIS LINE
+
 
 // 3. Root Test Route
 app.get('/', (req, res) => {
